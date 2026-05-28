@@ -1,0 +1,10 @@
+{
+  "name": "midnight-memory-exhibition",
+  "version": "1.0.0",
+  "private": true,
+  "description": "午夜音乐记忆展览 - 网易云音乐热评故事二创工具",
+  "scripts": {
+    "start": "python3 -m http.server 8080",
+    "fetch": "node fetch-one.mjs"
+  }
+}

@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>午夜音乐记忆展览 · Midnight Memory Exhibition</title>
+    <meta name="description" content="收藏网易云音乐最动人的热评，把每一条评论背后的故事整理成一场私人深夜展览。来自晴天、平凡之路、起风了等经典歌曲的真实感动。" />
+    <meta property="og:title" content="午夜音乐记忆展览" />
+    <meta property="og:description" content="每一条热评，都是一张没有发行的唱片。收藏网易云音乐最动人的热评故事。" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0a0a0c" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>" />
+    <link rel="stylesheet" href="./styles.css?v=2" />
+  </head>
+  <body>
+    <!-- 左侧展厅导航 -->
+    <nav class="sidebar-nav" aria-label="展厅导航">
+      <div class="sidebar-brand">
+        <span class="sidebar-logo">M</span>
+        <span class="sidebar-title">午夜<br>记忆</span>
+      </div>
+      <div class="sidebar-links">
+        <a href="#gallery" class="sidebar-link active" data-section="gallery">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>展厅</span>
+        </a>
+        <a href="#createExhibit" class="sidebar-link" data-section="create">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          <span>我的展品</span>
+        </a>
+        <a href="#gallery" class="sidebar-link" data-section="favs">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span>收藏夹</span>
+        </a>
+      </div>
+      <div class="sidebar-footer">
+        <span class="sidebar-year">2026</span>
+      </div>
+    </nav>
+
+    <main class="app-shell">
+      <section class="workspace" aria-label="音乐评论故事二创工具">
+        <!-- Hero 入口 -->
+        <section class="hero-mast" aria-label="音乐记忆展览入口">
+          <div class="hero-brandline" aria-hidden="true">
+            <span class="brand-mark">◐</span>
+            <span>午夜音乐记忆展览</span>
+            <small>Midnight Music Memory Exhibition</small>
+          </div>
+          <div class="hero-copy">
+            <header class="topbar">
+              <div class="brand-block">
+                <p class="eyebrow">Midnight Memory Exhibition</p>
+                <h1 class="editorial-display">每一条热评，都是一张没有发行的唱片</h1>
+                <p class="subtitle">把陌生人的一句评论，炼成一段会发光的回忆。</p>
+                <p class="subtitle-detail">这里收藏网易云音乐最动人的热评，被整理成一场私人深夜展览。</p>
+              </div>
+            </header>
+
+            <div class="hero-actions">
+              <a class="primary-button hero-cta" href="#gallery">进入展厅</a>
+              <button class="ghost-button" id="randomExhibit" type="button">随机逛展</button>
+              <div class="status-pill">
+                <span class="status-dot"></span>
+                <span id="exhibitCount">0</span> 件展品展出中
+              </div>
+            </div>
+
+            <div class="insight-strip" aria-label="展览数据">
+              <div>
+                <span class="metric-value" id="metricSongs">0</span>
+                <span class="metric-label">展出歌曲</span>
+              </div>
+              <div>
+                <span class="metric-value" id="metricComments">0</span>
+                <span class="metric-label">收录热评</span>
+              </div>
+              <div>
+                <span class="metric-value" id="metricArtists">0</span>
+                <span class="metric-label">歌手</span>
+              </div>
+              <div>
+                <span class="metric-value" id="metricTotalLikes">0</span>
+                <span class="metric-label">万次共鸣</span>
+              </div>
+            </div>
+
+            <div class="hero-note">
+              <span>Exhibition note</span>
+              <p>这不是播放器，也不是评论区截图。它像一间深夜展厅，把每一条热评背后的故事、封面和情绪标签，做成可以驻足的展品。</p>
+            </div>
+          </div>
+
+          <!-- 3D 唱片封面 -->
+          <section class="panel output-panel" aria-label="输出区">
+            <div class="audio-stage">
+              <canvas id="waveCanvas" width="760" height="220" aria-label="3D 唱片封面"></canvas>
+              <div class="vinyl-disc" aria-hidden="true"><span></span></div>
+              <div class="lyric-fragment" aria-hidden="true">
+                <span>Memory extract</span>
+                <p id="memoryLine">"有些歌不是被播放，是被某个瞬间重新打开。"</p>
+              </div>
+              <div class="stage-toolbar">
+                <span>3D record cover</span>
+                <span id="stageMode">Exhibition</span>
+              </div>
+              <div class="stage-copy">
+                <p id="stageLabel">正在加载展品</p>
+                <strong id="stageTitle">故事会从一句话开始</strong>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <!-- 展览画廊 -->
+        <section class="exhibit-wall" id="gallery" aria-label="音乐记忆展览画廊">
+          <div class="wall-heading">
+            <p class="section-kicker">Exhibition Gallery</p>
+            <h2>深夜展厅 · 所有展品</h2>
+            <p>每首歌都是一件展品，每条热评都是一段故事。点击任何一张卡片，把它展开。</p>
+          </div>
+
+          <div class="gallery-controls">
+            <div class="search-box">
+              <input id="searchInput" type="text" placeholder="搜索歌曲、歌手或评论内容..." />
+            </div>
+            <div class="filter-tags" id="filterTags"></div>
+          </div>
+
+          <div class="loading-state" id="loadingState">
+            <div class="loading-spinner"></div>
+            <p>正在加载展品...</p>
+          </div>
+          <div class="error-state hidden" id="errorState">
+            <p>展品加载失败</p>
+            <button class="ghost-button" id="retryBtn" type="button">重新加载</button>
+          </div>
+          <div class="exhibit-grid" id="exhibitGrid">
+            <!-- 动态填充 -->
+          </div>
+
+          <div class="load-more-wrap hidden" id="loadMoreWrap">
+            <button class="ghost-button" id="loadMoreBtn" type="button">加载更多展品</button>
+            <span class="load-more-info" id="loadMoreInfo"></span>
+          </div>
+        </section>
+
+        <!-- 歌曲详情弹层 -->
+        <div class="modal-overlay hidden" id="songModal">
+          <div class="modal-content">
+            <button class="modal-close" id="modalClose" type="button">&times;</button>
+            <div class="modal-header">
+              <span class="modal-song" id="modalSong"></span>
+              <span class="modal-artist" id="modalArtist"></span>
+            </div>
+            <div class="modal-comments" id="modalComments"></div>
+            <button class="primary-button" id="modalGenerate" type="button">用这条评论生成展品</button>
+          </div>
+        </div>
+
+        <!-- 输入面板 -->
+        <div class="tool-grid editor-grid">
+          <section class="panel input-panel" id="createExhibit" aria-label="生成你的展品">
+            <div class="panel-heading">
+              <div>
+                <p class="section-kicker">Create your exhibit</p>
+                <h2>生成你的私人唱片展品</h2>
+              </div>
+              <span class="counter" id="charCount">0 字</span>
+            </div>
+
+            <label class="field">
+              <span>音乐 / 歌单名称</span>
+              <input id="songName" type="text" placeholder="例如：后来 / 深夜循环歌单" />
+            </label>
+
+            <label class="field">
+              <span>贴一条让你记很久的评论</span>
+              <textarea id="commentInput" placeholder="比如：那年毕业后我再也没见过她，可每次听到这首歌，都会想起她借给我的那支笔。"></textarea>
+            </label>
+
+            <div class="controls">
+              <label class="field">
+                <span>二创方向</span>
+                <select id="storyMode">
+                  <option value="microfilm">短片旁白</option>
+                  <option value="xiaohongshu">小红书故事帖</option>
+                  <option value="podcast">播客开场</option>
+                  <option value="lyrics">歌词式独白</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>情绪强度</span>
+                <input id="emotionLevel" type="range" min="1" max="5" value="3" />
+              </label>
+            </div>
+
+            <button class="primary-button" id="generateBtn" type="button">生成我的展品</button>
+          </section>
+
+          <section class="panel result-exhibit" aria-label="你的私人唱片展品">
+            <div class="result-exhibit-heading">
+              <div>
+                <p class="section-kicker">Your private record exhibit</p>
+                <h2>你的私人唱片展品</h2>
+              </div>
+              <div class="tabs" role="tablist" aria-label="结果类型">
+                <button class="tab active" data-tab="story" type="button">故事</button>
+                <button class="tab" data-tab="shots" type="button">分镜</button>
+                <button class="tab" data-tab="tags" type="button">标签</button>
+              </div>
+            </div>
+
+            <article class="result-card" id="storyTab">
+              <div class="result-meta">
+                <span id="resultSongTag">等待输入</span>
+                <span id="resultTempo">等待输入</span>
+              </div>
+              <h2 id="resultTitle">还没有生成内容</h2>
+              <p id="resultStory">正在从网易云音乐加载热评数据，请稍候。你也可以直接输入评论来生成展品。</p>
+            </article>
+
+            <article class="result-card hidden" id="shotsTab">
+              <h2>画面分镜</h2>
+              <ol id="shotList"></ol>
+            </article>
+
+            <article class="result-card hidden" id="tagsTab">
+              <h2>情绪与叙事线索</h2>
+              <div class="tag-cloud" id="tagCloud"></div>
+            </article>
+          </section>
+        </div>
+      </section>
+
+      <footer class="site-footer">
+        <p>数据来源：网易云音乐热评 · 本地运行，不涉及任何在线服务</p>
+      </footer>
+    </main>
+
+    <script type="module" src="./app.js?v=music-exhibition"></script>
+  </body>
+</html>
