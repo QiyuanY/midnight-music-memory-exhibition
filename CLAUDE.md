@@ -21,8 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Access at http://localhost:8080
 
 # Fetch music data (requires NeteaseCloudMusicApi on port 3000)
-bash fetch-all.sh             # batch fetch all songs
-node fetch-one.mjs            # fetch specific songs with resume support
+node fetch-one.mjs            # fetch songs with resume support
 
 # Install dependencies
 npm install                   # only dependency: three
@@ -39,7 +38,7 @@ No build, lint, or test tooling is configured.
 - `styles.css` — all styling with CSS custom properties for theming (~1500 lines)
 - `index.html` — HTML structure with sidebar navigation and exhibit layout
 
-**Data fetching scripts** (`fetch-one.mjs`, `fetch-comments.mjs`, `fetch-all.sh`) are ES modules that call the NeteaseCloudMusicApi REST endpoints and write results to `data/songs.json`.
+**Data fetching script**: `fetch-one.mjs` is an ES module that calls the NeteaseCloudMusicApi REST endpoints and writes results to `data/songs.json`, with resume support.
 
 **Layout**: Mobile-first responsive design with sidebar navigation. The 3D canvas renders an interactive vinyl record with cover art textures.
 

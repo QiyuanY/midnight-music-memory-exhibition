@@ -28,7 +28,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
           <span>我的展品</span>
         </a>
-        <a href="#gallery" class="sidebar-link" data-section="favs">
+        <a href="#gallery" class="sidebar-link" data-section="favs" aria-disabled="true" tabindex="-1">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>
           <span>收藏夹</span>
         </a>
@@ -94,7 +94,7 @@
           <!-- 3D 唱片封面 -->
           <section class="panel output-panel" aria-label="输出区">
             <div class="audio-stage">
-              <canvas id="waveCanvas" width="760" height="220" aria-label="3D 唱片封面"></canvas>
+              <canvas id="waveCanvas" width="760" height="220" aria-label="3D 唱片封面">您的浏览器不支持 Canvas，3D 唱片封面无法显示。</canvas>
               <div class="vinyl-disc" aria-hidden="true"><span></span></div>
               <div class="lyric-fragment" aria-hidden="true">
                 <span>Memory extract</span>
@@ -148,7 +148,7 @@
         <!-- 歌曲详情弹层 -->
         <div class="modal-overlay hidden" id="songModal">
           <div class="modal-content">
-            <button class="modal-close" id="modalClose" type="button">&times;</button>
+            <button class="modal-close" id="modalClose" type="button" aria-label="关闭">&times;</button>
             <div class="modal-header">
               <span class="modal-song" id="modalSong"></span>
               <span class="modal-artist" id="modalArtist"></span>
@@ -206,13 +206,13 @@
                 <h2>你的私人唱片展品</h2>
               </div>
               <div class="tabs" role="tablist" aria-label="结果类型">
-                <button class="tab active" data-tab="story" type="button">故事</button>
-                <button class="tab" data-tab="shots" type="button">分镜</button>
-                <button class="tab" data-tab="tags" type="button">标签</button>
+                <button class="tab active" data-tab="story" type="button" role="tab" aria-selected="true" aria-controls="storyTab">故事</button>
+                <button class="tab" data-tab="shots" type="button" role="tab" aria-selected="false" aria-controls="shotsTab">分镜</button>
+                <button class="tab" data-tab="tags" type="button" role="tab" aria-selected="false" aria-controls="tagsTab">标签</button>
               </div>
             </div>
 
-            <article class="result-card" id="storyTab">
+            <article class="result-card" id="storyTab" role="tabpanel">
               <div class="result-meta">
                 <span id="resultSongTag">等待输入</span>
                 <span id="resultTempo">等待输入</span>
@@ -221,12 +221,12 @@
               <p id="resultStory">正在从网易云音乐加载热评数据，请稍候。你也可以直接输入评论来生成展品。</p>
             </article>
 
-            <article class="result-card hidden" id="shotsTab">
+            <article class="result-card hidden" id="shotsTab" role="tabpanel">
               <h2>画面分镜</h2>
               <ol id="shotList"></ol>
             </article>
 
-            <article class="result-card hidden" id="tagsTab">
+            <article class="result-card hidden" id="tagsTab" role="tabpanel">
               <h2>情绪与叙事线索</h2>
               <div class="tag-cloud" id="tagCloud"></div>
             </article>

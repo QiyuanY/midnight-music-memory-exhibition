@@ -1,10 +1,15 @@
-import * as THREE from "./node_modules/three/build/three.module.js";
-
 // ─── Data ───
 let allSongs = [];
 
 const ASSET_BASE = "./assets/generated/";
 const TONE_COLORS = ["tone-rose", "tone-gold", "tone-cyan", "tone-violet", "tone-mint"];
+
+function escapeHTML(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 const EXHIBIT_COVERS = [
   "cover-afterwards", "cover-rain-night", "cover-blue-pencil",
   "cover-daily-light", "cover-old-rain",
@@ -87,7 +92,7 @@ async function loadSongs() {
       allSongs = await res.json();
       loaded = allSongs.length > 0;
     }
-  } catch {}
+  } catch (e) { console.error("Fetch songs.json failed:", e); }
   // Fallback: load embedded data script
   if (!loaded) {
     try {
@@ -102,7 +107,7 @@ async function loadSongs() {
         allSongs = EMBEDDED_SONGS;
         loaded = allSongs.length > 0;
       }
-    } catch {}
+    } catch (e) { console.error("Load embedded.js failed:", e); }
   }
 
   if (!loaded) {
@@ -208,14 +213,14 @@ function renderGallery() {
       <div class="card-body">
         <div>
           <div class="card-song">
-            <span>${song.name}</span>
+            <span>${escapeHTML(song.name)}</span>
             <span class="card-likes">${formatLikes(best.likedCount)}</span>
           </div>
-          <div class="card-artist">${song.artist}</div>
+          <div class="card-artist">${escapeHTML(song.artist)}</div>
         </div>
-        <p class="card-comment">${best.content}</p>
+        <p class="card-comment">${escapeHTML(best.content)}</p>
         <div class="card-tags">
-          ${cardTags.map((tag) => `<span>${tag}</span>`).join("")}
+          ${cardTags.map((tag) => `<span>${escapeHTML(tag)}</span>`).join("")}
         </div>
         <div class="card-meta">
           <span class="card-likes">${formatLikes(best.likedCount)} 次共鸣</span>
@@ -233,6 +238,7 @@ function renderGallery() {
   } else {
     loadMoreWrap.classList.add("hidden");
   }
+  setupScrollReveal();
 }
 
 // ─── Modal ───
@@ -246,15 +252,13 @@ function openSongModal(song) {
   const sortedComments = [...song.comments].sort((a, b) => b.likedCount - a.likedCount);
   selectedModalComment = sortedComments[0] || null;
 
-  sortedComments
-    .sort((a, b) => b.likedCount - a.likedCount)
-    .forEach((comment, index) => {
+  sortedComments.forEach((comment, index) => {
       const div = document.createElement("div");
       div.className = "modal-comment" + (index === 0 ? " selected" : "");
       div.innerHTML = `
-        <p class="modal-comment-text">${comment.content}</p>
+        <p class="modal-comment-text">${escapeHTML(comment.content)}</p>
         <div class="modal-comment-meta">
-          <span class="modal-comment-nickname">@${comment.nickname}</span>
+          <span class="modal-comment-nickname">@${escapeHTML(comment.nickname)}</span>
           <span class="modal-comment-likes">${formatLikes(comment.likedCount)}</span>
         </div>
       `;
@@ -267,6 +271,23 @@ function openSongModal(song) {
     });
 
   songModal.classList.remove("hidden");
+  modalClose?.focus();
+}
+
+function trapFocus(e) {
+  if (songModal.classList.contains("hidden")) return;
+  const focusable = songModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (e.key === "Tab") {
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
 }
 
 function closeSongModal() {
@@ -303,7 +324,7 @@ function pickKeywords(text) {
     "高三", "毕业", "地铁", "深夜", "晚自习", "耳机", "磁带", "父亲", "妈妈",
     "再见", "十年", "蓝色", "学校", "雨", "车站", "消息", "大学", "青春",
     "眼泪", "想念", "回忆", "冬天", "初恋", "结婚", "分离", "错过", "成长",
-    "父亲", "奶奶", "分手", "初恋", "未来", "少年",
+    "奶奶", "未来", "少年",
   ];
   return [...new Set(lexicon.filter((w) => text.includes(w)))].slice(0, 8);
 }
@@ -368,93 +389,95 @@ function loadDefaultCover() {
   });
 }
 
-async function makeCoverTexture(title = "故事会从一句话开始", subtitle = "Memory extract") {
-  const tc = document.createElement("canvas");
-  tc.width = 1024; tc.height = 1280;
-  const cover = tc.getContext("2d");
-
-  // Draw base: use generated cover image if available, else fallback gradient
-  const bgImg = await loadDefaultCover();
-  if (bgImg) {
-    cover.drawImage(bgImg, 0, 0, 1024, 1280);
-    cover.fillStyle = "rgba(12,10,20,0.45)";
-    cover.fillRect(0, 0, 1024, 1280);
-  } else {
-    const gradient = cover.createLinearGradient(0, 0, 1024, 1280);
-    gradient.addColorStop(0, "#1a1520"); gradient.addColorStop(0.5, "#0f0c14"); gradient.addColorStop(1, "#0a0810");
-    cover.fillStyle = gradient; cover.fillRect(0, 0, 1024, 1280);
-  }
-
-  // Text overlay
-  cover.fillStyle = "rgba(244,184,96,0.9)";
-  cover.font = "700 28px Avenir Next, system-ui, sans-serif";
-  cover.fillText("MIDNIGHT MEMORY", 128, 110);
-
-  cover.fillStyle = "#f5efe6";
-  cover.font = "700 88px Georgia, Songti SC, serif";
-  cover.textBaseline = "top";
-  const lines = wrapCanvasText(cover, title, 760);
-  lines.slice(0, 3).forEach((line, idx) => cover.fillText(line, 128, 188 + idx * 100));
-
-  cover.fillStyle = "rgba(245,239,230,0.6)";
-  cover.font = "500 26px Avenir Next, system-ui, sans-serif";
-  cover.fillText(subtitle, 132, 1038);
-  cover.fillStyle = "rgba(245,239,230,0.35)";
-  cover.font = "400 22px Avenir Next, system-ui, sans-serif";
-  cover.fillText("Stories turned into a cover you can almost hold", 132, 1080);
-
-  const texture = new THREE.CanvasTexture(tc);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 8;
-  return texture;
-}
-
-function makeRecordLabelTexture() {
-  const tc = document.createElement("canvas");
-  tc.width = 512; tc.height = 512;
-  const ctx = tc.getContext("2d");
-  const gradient = ctx.createRadialGradient(256, 220, 20, 256, 256, 256);
-  gradient.addColorStop(0, "#ffe8ad");
-  gradient.addColorStop(0.58, "#d6953c");
-  gradient.addColorStop(1, "#7a421d");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 512, 512);
-  ctx.globalAlpha = 0.22;
-  for (let i = 0; i < 1200; i++) {
-    ctx.fillStyle = i % 2 ? "#fff3cd" : "#3b1f10";
-    ctx.fillRect(Math.random() * 512, Math.random() * 512, 1, 1);
-  }
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = "rgba(34,19,12,0.82)";
-  ctx.font = "900 38px Georgia, serif";
-  ctx.textAlign = "center";
-  ctx.fillText("SIDE A", 256, 198);
-  ctx.font = "700 24px Avenir Next, sans-serif";
-  ctx.fillText("MIDNIGHT EXHIBIT", 256, 244);
-  ctx.fillStyle = "rgba(34,19,12,0.34)";
-  ctx.beginPath();
-  ctx.arc(256, 256, 34, 0, Math.PI * 2);
-  ctx.fill();
-  const texture = new THREE.CanvasTexture(tc);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 8;
-  return texture;
-}
-
-function wrapCanvasText(ctx, text, maxW) {
-  const chars = [...text];
-  const lines = [];
-  let cur = "";
-  chars.forEach((ch) => {
-    const test = cur + ch;
-    if (ctx.measureText(test).width > maxW && cur) { lines.push(cur); cur = ch; }
-    else cur = test;
-  });
-  if (cur) lines.push(cur);
-  return lines;
-}
-
 async function createHero3D(targetCanvas) {
+  const THREE = await import("./node_modules/three/build/three.module.js");
+
+  function wrapCanvasText(ctx, text, maxW) {
+    const chars = [...text];
+    const lines = [];
+    let cur = "";
+    chars.forEach((ch) => {
+      const test = cur + ch;
+      if (ctx.measureText(test).width > maxW && cur) { lines.push(cur); cur = ch; }
+      else cur = test;
+    });
+    if (cur) lines.push(cur);
+    return lines;
+  }
+
+  async function makeCoverTexture(title = "故事会从一句话开始", subtitle = "Memory extract") {
+    const tc = document.createElement("canvas");
+    tc.width = 1024; tc.height = 1280;
+    const cover = tc.getContext("2d");
+
+    // Draw base: use generated cover image if available, else fallback gradient
+    const bgImg = await loadDefaultCover();
+    if (bgImg) {
+      cover.drawImage(bgImg, 0, 0, 1024, 1280);
+      cover.fillStyle = "rgba(12,10,20,0.45)";
+      cover.fillRect(0, 0, 1024, 1280);
+    } else {
+      const gradient = cover.createLinearGradient(0, 0, 1024, 1280);
+      gradient.addColorStop(0, "#1a1520"); gradient.addColorStop(0.5, "#0f0c14"); gradient.addColorStop(1, "#0a0810");
+      cover.fillStyle = gradient; cover.fillRect(0, 0, 1024, 1280);
+    }
+
+    // Text overlay
+    cover.fillStyle = "rgba(244,184,96,0.9)";
+    cover.font = "700 28px Avenir Next, system-ui, sans-serif";
+    cover.fillText("MIDNIGHT MEMORY", 128, 110);
+
+    cover.fillStyle = "#f5efe6";
+    cover.font = "700 88px Georgia, Songti SC, serif";
+    cover.textBaseline = "top";
+    const lines = wrapCanvasText(cover, title, 760);
+    lines.slice(0, 3).forEach((line, idx) => cover.fillText(line, 128, 188 + idx * 100));
+
+    cover.fillStyle = "rgba(245,239,230,0.6)";
+    cover.font = "500 26px Avenir Next, system-ui, sans-serif";
+    cover.fillText(subtitle, 132, 1038);
+    cover.fillStyle = "rgba(245,239,230,0.35)";
+    cover.font = "400 22px Avenir Next, system-ui, sans-serif";
+    cover.fillText("Stories turned into a cover you can almost hold", 132, 1080);
+
+    const texture = new THREE.CanvasTexture(tc);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 8;
+    return texture;
+  }
+
+  function makeRecordLabelTexture() {
+    const tc = document.createElement("canvas");
+    tc.width = 512; tc.height = 512;
+    const ctx = tc.getContext("2d");
+    const gradient = ctx.createRadialGradient(256, 220, 20, 256, 256, 256);
+    gradient.addColorStop(0, "#ffe8ad");
+    gradient.addColorStop(0.58, "#d6953c");
+    gradient.addColorStop(1, "#7a421d");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 512, 512);
+    ctx.globalAlpha = 0.22;
+    for (let i = 0; i < 1200; i++) {
+      ctx.fillStyle = i % 2 ? "#fff3cd" : "#3b1f10";
+      ctx.fillRect(Math.random() * 512, Math.random() * 512, 1, 1);
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "rgba(34,19,12,0.82)";
+    ctx.font = "900 38px Georgia, serif";
+    ctx.textAlign = "center";
+    ctx.fillText("SIDE A", 256, 198);
+    ctx.font = "700 24px Avenir Next, sans-serif";
+    ctx.fillText("MIDNIGHT EXHIBIT", 256, 244);
+    ctx.fillStyle = "rgba(34,19,12,0.34)";
+    ctx.beginPath();
+    ctx.arc(256, 256, 34, 0, Math.PI * 2);
+    ctx.fill();
+    const texture = new THREE.CanvasTexture(tc);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 8;
+    return texture;
+  }
+
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
   camera.position.set(0, 0.12, 7.5);
@@ -530,9 +553,12 @@ async function createHero3D(targetCanvas) {
     pointer.y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
   });
 
+  let lastWidth = 0, lastHeight = 0;
   function resize() {
     const rect = targetCanvas.getBoundingClientRect();
     const w = Math.max(1, rect.width), h = Math.max(1, rect.height);
+    if (w === lastWidth && h === lastHeight) return;
+    lastWidth = w; lastHeight = h;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     if (w < 700) {
@@ -546,7 +572,6 @@ async function createHero3D(targetCanvas) {
   }
 
   function animate(time = 0) {
-    resize();
     const t = time * 0.001;
     group.rotation.y += (pointer.x * 0.12 - group.rotation.y) * 0.035;
     group.rotation.x += (-0.08 - pointer.y * 0.08 - group.rotation.x) * 0.035;
@@ -558,6 +583,7 @@ async function createHero3D(targetCanvas) {
   }
 
   resize(); animate();
+  new ResizeObserver(() => resize()).observe(targetCanvas);
   return {
     async update(title, subtitle) {
       const prev = coverMat.map;
@@ -621,7 +647,11 @@ async function generate() {
 }
 
 function switchTab(tabName) {
-  $$(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.tab === tabName));
+  $$(".tab").forEach((tab) => {
+    const isActive = tab.dataset.tab === tabName;
+    tab.classList.toggle("active", isActive);
+    tab.setAttribute("aria-selected", String(isActive));
+  });
   ["story", "shots", "tags"].forEach((name) => {
     $(`#${name}Tab`).classList.toggle("hidden", name !== tabName);
   });
@@ -650,6 +680,7 @@ loadMoreBtn?.addEventListener("click", () => {
 modalClose?.addEventListener("click", closeSongModal);
 songModal?.addEventListener("click", (e) => { if (e.target === songModal) closeSongModal(); });
 modalGenerate?.addEventListener("click", applyModalComment);
+songModal?.addEventListener("keydown", trapFocus);
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") closeSongModal();
@@ -665,6 +696,14 @@ $$(".sidebar-link").forEach((link) => {
   link.addEventListener("click", (e) => {
     $$(".sidebar-link").forEach((l) => l.classList.remove("active"));
     link.classList.add("active");
+    const href = link.getAttribute("href");
+    if (href && href.startsWith("#")) {
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
   });
 });
 
@@ -687,12 +726,3 @@ function setupScrollReveal() {
     revealObserver.observe(card);
   });
 }
-
-// Re-setup after gallery renders
-const originalRenderGallery = renderGallery;
-renderGallery = function () {
-  originalRenderGallery();
-  setupScrollReveal();
-};
-// Initial call already happened in loadSongs, so setup reveal for existing cards
-setTimeout(setupScrollReveal, 100);
